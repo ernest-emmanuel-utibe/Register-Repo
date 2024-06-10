@@ -24,13 +24,13 @@ jobs:
 
       - name: Build Docker image
         run: |
-          docker build -t your-dockerhub-username/your-image-name:latest .
+          docker build -t samuel007/crud:latest .
 
       - name: Log in to Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
       - name: Push Docker image
-        run: docker push your-dockerhub-username/your-image-name:latest
+        run: docker push samuel007/crud:latest
 
       - name: Create Git Tag
         id: create_tag
@@ -48,7 +48,7 @@ jobs:
           release_name: Release ${{ steps.create_tag.outputs.TAG_NAME }}
           body: |
             This is an automatic release created during the deployment process.
-            - Docker Image: your-dockerhub-username/your-image-name:latest
+            - Docker Image: samuel007/crud:latest:latest
           draft: false
           prerelease: false
         env:
