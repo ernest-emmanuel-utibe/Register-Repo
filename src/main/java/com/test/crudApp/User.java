@@ -1,11 +1,13 @@
 package com.test.crudApp;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.*;
 
 @Entity
 @Table(name = "users")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
 
     @Id
