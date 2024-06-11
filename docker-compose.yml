@@ -11,6 +11,11 @@ services:
       - mongo
     networks:
       - monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
 
   mongo:
     image: mongo
@@ -22,48 +27,15 @@ services:
     networks:
       - monitoring
 
-#  keycloak:
-#    image: samuel007/keycloak
-#    environment:
-#      DB_VENDOR: POSTGRES
-#      DB_ADDR: keycloak-db
-#      DB_DATABASE: keycloak
-#      DB_USER: keycloak
-#      DB_PASSWORD: password
-#      KEYCLOAK_USER: admin
-#      KEYCLOAK_PASSWORD: admin
-#    ports:
-#      - "8082:8080"
-#    depends_on:
-#      - keycloak-db
-#    networks:
-#      - monitoring
-#
-#  keycloak-db:
-#    image: postgres
-#    environment:
-#      POSTGRES_DB: keycloak
-#      POSTGRES_USER: keycloak
-#      POSTGRES_PASSWORD: password
-#    networks:
-#      - monitoring
-
-#  jenkins:
-#    image: jenkins/jenkins:lts
-#    ports:
-#      - "8083:8080"
-#      - "50000:50000"
-#    volumes:
-#      - jenkins_home:/var/jenkins_home
-#    networks:
-#      - monitoring
-
   sonarqube:
     image: sonarqube
     ports:
       - "9000:9000"
     environment:
       - sonar.jdbc.url=jdbc:postgresql://sonarqube-db:5432/sonar
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
+      - SONAR_SEARCH_JAVAADDITIONALOPTS=-Xms512m -Xmx512m
     depends_on:
       - sonarqube-db
     networks:
@@ -75,19 +47,6 @@ services:
       POSTGRES_USER: sonar
       POSTGRES_PASSWORD: sonar
       POSTGRES_DB: sonar
-    networks:
-      - monitoring
-
-  trivy:
-    image: aquasec/trivy:latest
-    entrypoint: ["trivy"]
-    networks:
-      - monitoring
-
-  argocd:
-    image: argoproj/argocd
-    ports:
-      - "8084:8080"
     networks:
       - monitoring
 
@@ -108,6 +67,47 @@ services:
       - monitoring
     depends_on:
       - prometheus
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.14.0
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - monitoring
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    networks:
+      - monitoring
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - monitoring
+
+  trivy:
+    image: aquasec/trivy:latest
+    networks:
+      - monitoring
+    entrypoint: ["trivy"]
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
 
 volumes:
   jenkins_home:
