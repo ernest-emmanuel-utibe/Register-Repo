@@ -11,6 +11,10 @@ services:
       - mongo
     networks:
       - monitoring
+    deploy:
+      resources:
+        limits:
+          memory: 1g  
     logging:
       driver: "json-file"
       options:
