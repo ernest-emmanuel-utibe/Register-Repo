@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuration
-CONTAINER_NAME="springboot-app"
+CONTAINER_NAME="crud"
 IMAGE_NAME="samuel007/crud:latest"
 THRESHOLD_MB=500  # Define your size threshold in MB
 
