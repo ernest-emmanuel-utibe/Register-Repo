@@ -2,8 +2,115 @@ version: '3.8'
 
 services:
   springboot-app:
-    build: .
+    image: samuel007/crud:latest
     ports:
       - "8081:8080"
     environment:
-      - SERVER_PORT=8081  # Ensure this matches the port in application.properties or use this to override it
+      - SERVER_PORT=8081  # Adjust this if needed
+    depends_on:
+      - mongo
+    networks:
+      - monitoring
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200k"
+        max-file: "10"
+
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+    networks:
+      - monitoring
+
+  sonarqube:
+    image: sonarqube
+    ports:
+      - "9000:9000"
+    environment:
+      - sonar.jdbc.url=jdbc:postgresql://sonarqube-db:5432/sonar
+      - SONARQUBE_JDBC_USERNAME=sonar
+      - SONARQUBE_JDBC_PASSWORD=sonar
+      - SONAR_SEARCH_JAVAADDITIONALOPTS=-Xms512m -Xmx512m
+    depends_on:
+      - sonarqube-db
+    networks:
+      - monitoring
+
+  sonarqube-db:
+    image: postgres
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: sonar
+      POSTGRES_DB: sonar
+    networks:
+      - monitoring
+
+  prometheus:
+    image: prom/prometheus
+    volumes:
+      - ./prometheus:/etc/prometheus/
+    ports:
+      - "9090:9090"
+    networks:
+      - monitoring
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3000:3000"
+    networks:
+      - monitoring
+    depends_on:
+      - prometheus
+
+  logstash:
+    image: docker.elastic.co/logstash/logstash:7.14.0
+    ports:
+      - "5044:5044"
+    volumes:
+      - ./logstash/logstash.conf:/usr/share/logstash/pipeline/logstash.conf
+    networks:
+      - monitoring
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.14.0
+    environment:
+      - discovery.type=single-node
+      - ES_JAVA_OPTS=-Xms1g -Xmx1g
+    ports:
+      - "9200:9200"
+    networks:
+      - monitoring
+
+  kibana:
+    image: docker.elastic.co/kibana/kibana:7.14.0
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - monitoring
+
+  trivy:
+    image: aquasec/trivy:latest
+    networks:
+      - monitoring
+    entrypoint: ["trivy"]
+
+  node-exporter:
+    image: prom/node-exporter
+    ports:
+      - "9100:9100"
+    networks:
+      - monitoring
+
+volumes:
+  jenkins_home:
+
+networks:
+  monitoring:
