@@ -1,0 +1,23 @@
+name: Docker Build and Push
+
+on:
+  push:
+    branches:
+      - [ "master", "dev", "systest", "uat" ]  # Change this to match the branch you want to trigger the workflow on
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Build Docker image
+        run: docker build -t samuel007/crudApp:latest .
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKERHUB_PASSWORD }}" | docker login -u "${{ secrets.DOCKERHUB_USERNAME }}" --password-stdin
+
+      - name: Push Docker image to Docker Hub
+        run: docker push your-dockerhub-username/your-image-name:latest
