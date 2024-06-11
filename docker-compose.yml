@@ -22,41 +22,41 @@ services:
     networks:
       - monitoring
 
-  keycloak:
-    image: jboss/keycloak
-    environment:
-      DB_VENDOR: POSTGRES
-      DB_ADDR: keycloak-db
-      DB_DATABASE: keycloak
-      DB_USER: keycloak
-      DB_PASSWORD: password
-      KEYCLOAK_USER: admin
-      KEYCLOAK_PASSWORD: admin
-    ports:
-      - "8082:8080"
-    depends_on:
-      - keycloak-db
-    networks:
-      - monitoring
+#  keycloak:
+#    image: samuel007/keycloak
+#    environment:
+#      DB_VENDOR: POSTGRES
+#      DB_ADDR: keycloak-db
+#      DB_DATABASE: keycloak
+#      DB_USER: keycloak
+#      DB_PASSWORD: password
+#      KEYCLOAK_USER: admin
+#      KEYCLOAK_PASSWORD: admin
+#    ports:
+#      - "8082:8080"
+#    depends_on:
+#      - keycloak-db
+#    networks:
+#      - monitoring
+#
+#  keycloak-db:
+#    image: postgres
+#    environment:
+#      POSTGRES_DB: keycloak
+#      POSTGRES_USER: keycloak
+#      POSTGRES_PASSWORD: password
+#    networks:
+#      - monitoring
 
-  keycloak-db:
-    image: postgres
-    environment:
-      POSTGRES_DB: keycloak
-      POSTGRES_USER: keycloak
-      POSTGRES_PASSWORD: password
-    networks:
-      - monitoring
-
-  jenkins:
-    image: jenkins/jenkins:lts
-    ports:
-      - "8083:8080"
-      - "50000:50000"
-    volumes:
-      - jenkins_home:/var/jenkins_home
-    networks:
-      - monitoring
+#  jenkins:
+#    image: jenkins/jenkins:lts
+#    ports:
+#      - "8083:8080"
+#      - "50000:50000"
+#    volumes:
+#      - jenkins_home:/var/jenkins_home
+#    networks:
+#      - monitoring
 
   sonarqube:
     image: sonarqube
