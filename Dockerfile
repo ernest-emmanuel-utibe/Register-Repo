@@ -19,7 +19,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update && apt-get install -y \
     wget \
     curl \
-    openjdk-17 \
+    openjdk-17-jdk \
     docker.io \
     git \
     unzip
