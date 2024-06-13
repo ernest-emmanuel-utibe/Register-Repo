@@ -30,31 +30,28 @@ services:
           memory: 1g  # Adjust memory limit as needed
 
   sonarqube:
-    image: sonarqube
+    image: sonarqube:latest
+    container_name: sonarqube
     ports:
       - "9000:9000"
     environment:
-      - sonar.jdbc.url=jdbc:postgresql://sonarqube-db:5432/sonar
-      - SONARQUBE_JDBC_USERNAME=sonar
-      - SONARQUBE_JDBC_PASSWORD=sonar
-      - SONARQUBE_WEB_JVM_OPTS=-Xms512m -Xmx1024m -XX:+HeapDumpOnOutOfMemoryError
+      SONARQUBE_JDBC_URL: jdbc:postgresql://db:5432/sonarqube
+      SONARQUBE_JDBC_USERNAME: sonarqube
+      SONARQUBE_JDBC_PASSWORD: sonarqube
     volumes:
       - sonarqube_data:/opt/sonarqube/data
-    deploy:
-      resources:
-        limits:
-          memory: 5g  # Adjust memory limit as needed
+      - sonarqube_extensions:/opt/sonarqube/extensions
+      - sonarqube_logs:/opt/sonarqube/logs
 
-  sonarqube-db:
-    image: postgres
+  db:
+    image: postgres:latest
+    container_name: sonarqube_db
     environment:
-      POSTGRES_USER: sonar
-      POSTGRES_PASSWORD: sonar
-      POSTGRES_DB: sonar
-    deploy:
-      resources:
-        limits:
-          memory: 1g  # Adjust memory limit as needed
+      POSTGRES_USER: sonarqube
+      POSTGRES_PASSWORD: sonarqube
+      POSTGRES_DB: sonarqube
+    volumes:
+      - postgresql_data:/var/lib/postgresql/data
 
   prometheus:
     image: prom/prometheus
@@ -128,6 +125,10 @@ services:
 
 volumes:
   jenkins_home:
+  sonarqube_data:
+  sonarqube_extensions:
+  sonarqube_logs:
+  postgresql_data:
 
 networks:
   monitoring:
